@@ -6,6 +6,8 @@ from time import sleep
 from appium import webdriver
 import pytest
 from hamcrest import *
+from selenium.webdriver.common.by import By
+
 
 class TestXueqiu:
     def setup_class(self):
@@ -16,10 +18,15 @@ class TestXueqiu:
         caps["appPackage"] = "com.xueqiu.android"
         caps["appActivity"] = ".view.WelcomeActivityAlias"
         caps['autoGrantPermissions'] = True
+        #caps['unicodeKeyboard']= True
+        #caps['resetKeyboard']= True
+        caps['automationName']='uiautomator2'
 
         self.driver = webdriver.Remote("http://localhost:4723/wd/hub", caps)
-        self.driver.implicitly_wait(15)
+        self.driver.implicitly_wait(10)
         #等待元素出现
+        print(self.driver.find_element(By.ID, "image_cancel").location)
+        self.driver.find_element(By.ID, "image_cancel").click()
         self.driver.find_element_by_id("user_profile_icon")
 
     def setup(self):
@@ -38,7 +45,11 @@ class TestXueqiu:
     ])
     def test_search(self, keyword, stock_type, expect_price):
         self.driver.find_element_by_id("home_search").click()
-        self.driver.find_element_by_id("search_input_text").send_keys(keyword)
+
+        #self.driver.find_element_by_id("search_input_text").click()
+        self.driver.find_element_by_id("com.xueqiu.android:id/search_input_text").send_keys(keyword)
+        sleep(1)
+        print(self.driver.page_source)
         self.driver.find_element_by_id("name").click()
         price=float(self.driver.find_element_by_xpath(
             "//*[contains(@resource-id, 'stockCode') and @text='"+ stock_type + "']/../../.."
